@@ -111,9 +111,9 @@ public class Server {
                     .filter(course -> course.getSession().equals(arg))
                     .collect(Collectors.toList());
             objectOutputStream.writeObject(filteredCourses);
-        } catch (IOException e) {
+        } catch (IOException error) {
             System.err.println("Erreur de lecture ou écriture du fichier en question");
-            e.printStackTrace();
+            error.printStackTrace();
         }
     }
 
