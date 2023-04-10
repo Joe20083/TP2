@@ -97,23 +97,23 @@ public class Server {
     public void handleLoadCourses(String arg) {
         try {
             List<Course> courses = new ArrayList<>();
-            File file = new File("cours.txt");
-            Scanner scanner = new Scanner(file);
+            File cours = new File("cours.txt");
+            Scanner scanner = new Scanner(cours);
+            //System.out.println("test");
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                String[] parts = line.split(",");
-                Course course = new Course(parts[1], parts[0], parts[2]);
-                courses.add(course);
+                String[] sections = line.split(",");
+                Course detailedCourses = new Course(sections[1], sections[0], sections[2]);
+                courses.add(detailedCourses);
             }
             scanner.close();
 
-            List<Course> filteredCourses = courses.stream()
+            List<Course> filteredCours = courses.stream()
                     .filter(course -> course.getSession().equals(arg))
                     .collect(Collectors.toList());
-            objectOutputStream.writeObject(filteredCourses);
+            objectOutputStream.writeObject(filteredCours);
         } catch (IOException error) {
             System.err.println("Erreur de lecture ou écriture du fichier en question");
-            error.printStackTrace();
         }
     }
 
@@ -125,20 +125,30 @@ public class Server {
      */
     public void handleRegistration() {
         try {
-            RegistrationForm registrationForm = (RegistrationForm) objectInputStream.readObject();
+            Course coursesInfo = (Course) objectInputStream.readObject();
+            RegistrationForm coursesRegistered = (RegistrationForm) objectInputStream.readObject();
+            String inscription = coursesInfo.getSession() + " " +
+                    coursesInfo.getCode() + " " +
+                    coursesRegistered.getMatricule() + " " +
+                    coursesRegistered.getNom() + " " +
+                    coursesRegistered.getEmail();
 
-            File writeInscription = new File("inscriptions.txt");
-            FileWriter writer = new FileWriter(writeInscription, true);
-            writer.write(registrationForm.toString() + "\n");
+            BufferedWriter writer = new BufferedWriter(new FileWriter("inscription.txt"));
+            writer.write(inscription);
+            writer.newLine();
             writer.close();
-        } catch (IOException e) {
+
+            objectOutputStream.writeObject("Enregistrement confirmé");
+            objectOutputStream.flush();
+        } catch (IOException error) {
             System.err.println("Erreur de lecture ou écriture du fichier en question");
-            e.printStackTrace();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
-    }
+
+}
+
 
 
 
